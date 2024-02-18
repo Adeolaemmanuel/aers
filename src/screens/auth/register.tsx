@@ -1,19 +1,11 @@
-import {
-  Button,
-  FormControl,
-  Input,
-  Text,
-  View,
-  Select,
-  Flex,
-  Radio,
-} from 'native-base';
+import {Button, FormControl, Input, Text, View, Select} from 'native-base';
 import React from 'react';
 import SystemService from '../../services/system.service';
 import {useNavigation} from '@react-navigation/native';
 import {Routes} from '../../components/layout/router';
 import {vs} from 'react-native-size-matters';
 import UserService from '../../services/user.service';
+import RadioGroup, {RadioButtonProps} from 'react-native-radio-buttons-group';
 
 const systemService = SystemService.getInstance();
 const userService = UserService.getInstance();
@@ -23,7 +15,7 @@ const Register: React.FC<RegisterProps<RegisterRoute>> = ({route}) => {
   const [loading, setLoading] = React.useState(false);
   const [designation, setDesignation] = React.useState<DesignationState[]>([]);
   const [body, setBody] = React.useState<CreateUser>({
-    email: route?.params?.user?.email,
+    email: route?.params?.user?.email || route.params.email,
     first_name: route?.params?.user?.first_name,
     last_name: route?.params?.user?.last_name,
     phone_number: route?.params?.user?.phone_number,
@@ -36,6 +28,30 @@ const Register: React.FC<RegisterProps<RegisterRoute>> = ({route}) => {
       setDesignation(res);
     });
   }, []);
+
+  const radioButtons: RadioButtonProps[] = React.useMemo(
+    () => [
+      {
+        id: '1', // acts as primary key, should be unique and non-empty string
+        label: 'Yes',
+        value: 'true',
+      },
+      {
+        id: '0',
+        label: 'No',
+        value: 'false',
+      },
+    ],
+    [],
+  );
+
+  console.log(body, route);
+  
+
+  const bool = (value: string) => {
+    if (value === '1') return true;
+    else return false;
+  };
 
   const submit = async () => {
     const check = userService.strictCheck<CreateUser>(body);
@@ -116,23 +132,12 @@ const Register: React.FC<RegisterProps<RegisterRoute>> = ({route}) => {
             I may be contacted by hospital administrator/management for
             follow-up about this reported incident?
           </FormControl.Label>
-          <Radio.Group
-            value={`${body.is_contactable}`}
-            onChange={value => {
-              if (value === 'true') {
-                setBody({...body, is_contactable: true});
-              } else setBody({...body, is_contactable: false});
-            }}
-            name="contact"
-            mt={'3'}
-            direction="row">
-            <Radio value={`true`} my={1}>
-              Yes
-            </Radio>
-            <Radio ml={4} value={`false`} my={1}>
-              No
-            </Radio>
-          </Radio.Group>
+          <RadioGroup
+            radioButtons={radioButtons}
+            onPress={c => setBody({...body, is_contactable: bool(c)})}
+            selectedId={body.is_contactable ? '1' : '0'}
+            layout="row"
+          />
         </FormControl>
 
         <Button isLoading={loading} onPress={() => submit()} mt={'7'}>

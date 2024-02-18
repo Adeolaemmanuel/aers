@@ -14,20 +14,24 @@ const Login: React.FC = () => {
   const [loading, setLoading] = React.useState(false);
 
   const submit = async () => {
-    setLoading(true);
-    const check = userService.strictCheck({email}, {validations: ['email']});
-    if (!check?.status) {
-      setLoading(false);
-      return userService.info(check?.error);
-    }
-    const res = await userService.getUser(email);
-    if (!res) {
+    try {
       setLoading(true);
-      navigate.navigate(Routes.register, {email, action: 'insert'});
-    } else {
-      setUser(res);
-      setLoading(false);
-      setShow(!show);
+      const check = userService.strictCheck({email}, {validations: ['email']});
+      if (!check?.status) {
+        setLoading(false);
+        return userService.info(check?.error);
+      }
+      const res = await userService.getUser(email);
+      if (!res) {
+        setLoading(true);
+        navigate.navigate(Routes.register, {email, action: 'insert'});
+      } else {
+        setUser(res);
+        setLoading(false);
+        setShow(!show);
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 

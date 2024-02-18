@@ -162,7 +162,7 @@ export default class BaseService {
           if (customKey) {
             return {
               status: false,
-              error: `${customKey[key.replaceAll('_', ' ')]} is required`,
+              error: `${customKey[key.replace(/_/g, ' ')]} is required`,
               value: key,
             };
           }
@@ -176,7 +176,7 @@ export default class BaseService {
           if (typeof data[key] !== 'boolean') {
             return {
               status: false,
-              error: `${key.replaceAll('_', ' ')} is required`,
+              error: `${key.replace(/_/g, ' ')} is required`,
               value: key,
             };
           }

@@ -38,6 +38,7 @@ const MultiSelectInput: React.FC<SelectInputProps> = ({options, onChange}) => {
                 onPress={() => {
                   selected.splice(selected.indexOf(data), 1);
                   setSelected([...selected]);
+                  onChange(selected);
                 }}
                 style={{padding: 4}}
               />
@@ -64,6 +65,7 @@ const MultiSelectInput: React.FC<SelectInputProps> = ({options, onChange}) => {
                     let select = new Set(selected);
                     select.add(data);
                     setSelected([...select]);
+                    onChange(selected);
                   }}
                   key={key}
                   style={{padding: 15}}>

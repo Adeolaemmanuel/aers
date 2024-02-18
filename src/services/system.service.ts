@@ -20,4 +20,13 @@ export default class SystemService extends BaseService {
     const res = await this.get<Questions[]>('/designation');
     return res;
   }
+
+  async getAllStages() {
+    try {
+      const res = await this.get<{name: string; slug: string}[]>(`/stages`);
+      return res.map(({slug}) => slug);
+    } catch (error) {
+      console.log(error, 'stages');
+    }
+  }
 }

@@ -7,7 +7,7 @@ const SuccessModal: React.FC<SuccessModal> = ({isOpen, submit, cancel}) => {
   const [show, setShow] = React.useState(isOpen);
 
   React.useEffect(() => {
-    setShow(!isOpen);
+    setShow(isOpen);
   }, [isOpen]);
 
   return (

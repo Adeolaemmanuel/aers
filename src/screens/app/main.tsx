@@ -8,32 +8,23 @@ import {
   Flex,
   FlatList,
   Text,
-  KeyboardAvoidingView,
   Spinner,
 } from 'native-base';
 import React from 'react';
 import QuestionsService from '../../services/question.service';
-import {STAGES} from '../../@types/constants';
 import TimeInput from '../../components/customInput/time';
 import DateInput from '../../components/customInput/date';
 import CategoryInput from '../../components/customInput/category';
 import SelectInput from '../../components/customInput/select';
 import CheckedInput from '../../components/customInput/checked';
 import {vs} from 'react-native-size-matters';
-import {Dimensions, TurboModuleRegistry} from 'react-native';
 import MultiSelectInput from '../../components/customInput/multiSelect';
 import SuccessModal from '../../components/modals/success';
 import {Routes} from '../../components/layout/router';
+import SystemService from '../../services/system.service';
 
 const questionsServices = QuestionsService.getInstance();
-const stages = [
-  STAGES.INCIDENT,
-  STAGES['CONTRIBUTORY FACTOR/CAUSE'],
-  STAGES.OUTCOME,
-  STAGES.TRIGGERS,
-  STAGES['FOLlOW UP'],
-  STAGES.PATIENT,
-];
+const systemService = SystemService.getInstance();
 
 const Main: React.FC = () => {
   const navigate: any = useNavigation();
@@ -41,10 +32,22 @@ const Main: React.FC = () => {
   const [successModal, setSuccessModal] = React.useState(false);
   const [question, setQuestion] = React.useState<Questions[]>([]);
   const [questionLoading, setQuestionLoading] = React.useState(false);
-  const [stage, setStage] = React.useState<STAGES>(stages[currentIndex]);
+  const [stages, setStages] = React.useState(['']);
+  const [stage, setStage] = React.useState(stages[currentIndex]);
   const [body, setBody] = React.useState<any>({});
   const [loading, setLoading] = React.useState(false);
-  const {height: screenHeight} = Dimensions.get('window');
+  
+
+  React.useEffect(() => {
+    setQuestionLoading(true);
+    systemService.getAllStages().then(res => {
+      if (res) {
+        setQuestionLoading(false);
+        setStages(res);
+        setStage(res[currentIndex]);
+      }
+    });
+  }, []);
 
   React.useEffect(() => {
     setQuestionLoading(true);
@@ -71,7 +74,6 @@ const Main: React.FC = () => {
     } else {
       setSuccessModal(!successModal);
     }
-    console.log(index, stages.length);
   }
 
   const submit = async () => {
@@ -89,7 +91,7 @@ const Main: React.FC = () => {
 
   return (
     <View flex={1} backgroundColor={'white'}>
-      <KeyboardAvoidingView width={'95%'} mx={'auto'} mt={vs(45)}>
+      <View width={'95%'} mx={'auto'} mt={vs(45)}>
         <Text fontWeight={'bold'} textAlign={'center'} fontSize={'xl'}>
           {stage?.toUpperCase()?.replaceAll('_', ' ')}
         </Text>
@@ -97,7 +99,7 @@ const Main: React.FC = () => {
           <Spinner marginTop={vs(250)} marginBottom={vs(250)} />
         ) : (
           <FlatList
-            height={vs(screenHeight - 320)}
+            height={'85%'}
             showsHorizontalScrollIndicator={false}
             showsVerticalScrollIndicator={false}
             data={question}
@@ -190,9 +192,6 @@ const Main: React.FC = () => {
           <Button mt="10" width={'30%'} onPress={() => skip()}>
             Skip
           </Button>
-          {/* <Button mt="10" width={'30%'} onPress={() => skip('backward')}>
-            Previous
-          </Button> */}
           <Button
             isLoading={loading}
             mt="10"
@@ -201,12 +200,13 @@ const Main: React.FC = () => {
             Next
           </Button>
         </Flex>
-      </KeyboardAvoidingView>
+      </View>
       <SuccessModal
         isOpen={successModal}
         submit={() => {
           setStage(stages[0]);
           setSuccessModal(!successModal);
+          setCurrentIndex(0)
         }}
         cancel={() => {
           setSuccessModal(!successModal);
